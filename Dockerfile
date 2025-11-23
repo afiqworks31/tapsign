@@ -5,7 +5,7 @@ FROM node:20-alpine AS frontend-build
 WORKDIR /app/client
 
 COPY client/package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY client/ ./
 RUN npm run build
@@ -17,17 +17,17 @@ WORKDIR /app
 
 # Install dependencies for sharp (image processing)
 RUN apk add --no-cache \
-    vips-dev \
-    fftw-dev \
-    build-base \
-    python3
+  vips-dev \
+  fftw-dev \
+  build-base \
+  python3
 
 # Copy backend package files
 COPY package*.json ./
 COPY prisma/ ./prisma/
 
 # Install backend dependencies
-RUN npm ci --only=production
+RUN npm install --production
 RUN npx prisma generate
 
 # Copy backend source
