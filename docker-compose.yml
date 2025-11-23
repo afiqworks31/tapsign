@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tapsign
+      POSTGRES_USER: tapsign
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - tapsign-network
+
+  # Application
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://tapsign:changeme@postgres:5432/tapsign
+      PORT: 3000
+      JWT_SECRET: your-super-secret-jwt-key-change-this
+      STORAGE_PATH: /app/storage
+      BASE_URL: http://localhost:3000
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: changeme123
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      - postgres
+    networks:
+      - tapsign-network
+
+volumes:
+  postgres_data:
+  storage_data:
+
+
+networks:
+  tapsign-network:
+    driver: bridge

@@ -1,0 +1,75 @@
+# Prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+# Admin user for dashboard access
+model Admin {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  passwordHash  String   @map("password_hash")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("admins")
+}
+
+# Predefined bosses (3 main bosses)
+model Boss {
+  id           Int           @id @default(autoincrement())
+  name         String
+  phoneNumber  String        @map("phone_number")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  
+  signRequests SignRequest[]
+
+  @@map("bosses")
+}
+
+# Sign requests created by staff
+model SignRequest {
+  id               Int       @id @default(autoincrement())
+  staffName        String    @map("staff_name")
+  pdfUrl           String    @map("pdf_url")
+  
+  # Boss can be from predefined list or manually entered
+  bossId           Int?      @map("boss_id")
+  boss             Boss?     @relation(fields: [bossId], references: [id])
+  manualBossName   String?   @map("manual_boss_name")
+  manualBossPhone  String?   @map("manual_boss_phone")
+  
+  # Array of signature areas: [{page: 1, x: 100, y: 200, width: 150, height: 50}, ...]
+  signAreaCoords   Json      @map("sign_area_coords")
+  
+  # Status: PENDING, SIGNED, REJECTED
+  status           String    @default("PENDING")
+  
+  uniqueLink       String    @unique @map("unique_link")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  
+  signature        Signature?
+
+  @@map("sign_requests")
+}
+
+# Signature submitted by boss
+model Signature {
+  id              Int         @id @default(autoincrement())
+  requestId       Int         @unique @map("request_id")
+  request         SignRequest @relation(fields: [requestId], references: [id])
+  
+  signatureUrl    String      @map("signature_url")
+  signedPdfUrl    String?     @map("signed_pdf_url")
+  
+  # Type: DRAWN or UPLOADED
+  type            String
+  
+  signedAt        DateTime?   @map("signed_at")
+  rejectionReason String?     @map("rejection_reason")
+
+  @@map("signatures")
+}

@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Dist
+dist/
+client/dist/
+build/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Storage (uploaded files - don't include in image)
+storage/
+
+# Git
+.git/
+.gitignore
+
+# Testing
+coverage/
+
+# Misc
+*.md
+!README.md
+LICENSE
+.prettierrc
+.eslintrc*
